@@ -1,0 +1,30 @@
+body { color: #565656; background: #F0F3F3; padding: 30px 0; }
+
+/* Tema */
+.panel { border: none; border-radius: 0; margin-top: 30px; box-shadow: 0 5px 5px 0 rgba(0,0,0,0.2) }
+.form-group label.error { right: 0; }
+.logo { padding-bottom: 0; }
+
+/* Welcome Loader */
+.loader-welcome {
+  animation: spin 2s infinite linear;
+  background: url('../img/loader-welcome.png') no-repeat 50% 50%;
+  transform-origin: 50% 50%;
+  width: 150px;
+  height: 150px;
+  margin: 30px auto;
+}
+
+
+
+@media (min-width: 768px) {
+
+}
+
+@media (min-width: 992px) {
+
+}
+
+@media (min-width: 1200px) {
+
+}
