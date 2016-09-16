@@ -1,4 +1,5 @@
 import React from 'react';
+import Helmet from "react-helmet";
 
 const ImgLogo = require('../../img/logo.svg');
 
@@ -6,6 +7,7 @@ export default class Welcome extends React.Component {
   render(){
     return (
       <div className="container">
+        <Helmet title="My Title" />
       	<div className="row">
       		<div className="col-lg-4 col-sm-6 col-lg-offset-4 col-sm-offset-3">
             <div className="text-center logo">

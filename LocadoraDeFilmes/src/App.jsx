@@ -1,4 +1,5 @@
 import React from 'react';
+import Helmet from "react-helmet";
 
 export default class App extends React.Component {
 
@@ -8,9 +9,14 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <div className="App">
+      <Helmet
+        titleTemplate="%s | Locadora de Filmes"
+        defaultTitle="Locadora de Filmes Website"
+        >
+        <div className="App">
 
-      </div>
+        </div>
+      </Helmet>
     );
   }
 }
