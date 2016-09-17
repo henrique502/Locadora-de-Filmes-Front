@@ -1,49 +1,51 @@
 var axios = require('axios');
 var querystring = require('querystring');
-var sessionStore = require('./stores/sessionStore');
+var Auth = require('../libraries/Auth.js');
+var Config = require('./Config.js');
 var _ = require('lodash');
 var Helper = {};
 
+Helper.request = function (method, url, params, callback) {
+  method = method.toUpperCase();
+  url = Config.endpointApi + url;
 
-Helper.executeRequest = function (url, params, callback) {
+  if(Auth.isLogged()){
+    if(method === 'POST'){
+      url = url + '?token=' + Auth.getToken();
+    } else {
+      _.merge(params, {
+          token: Auth.getToken()
+      });
+    }
+  }
 
+  params = querystring.stringify(params);
   var config = {
     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
   };
 
-  axios.post(url, querystring.stringify(params), config)
-    .then(function (res) {
-        if (res.status === 204) {
-          callback(true, null);
-        } else {
-          callback(res.data, null);
-        }
-      })
-    .catch(function (error) {
-
-      if ((error.response !== undefined) && (error.response.data !== undefined) && (typeof error.response.data === 'object')) {
-          callback(null, error.response.data);
-        } else {
-          var error = {code: "-2000", message:"Falha de comunicação, por favor tente novamente."};//ERRO -2000 significa que não foi retornado erro do backend
-          callback(null, error);
-        }
-    });
-}
-
-// mockup-server c/ validação de userSessionToken
-Helper.executeRequestWithToken = function (url, params, callback) {
-
-  var userSessionToken = sessionStore.getSessionToken();
-
-  if ((!userSessionToken) || (userSessionToken === '')){
-    return;
-  }else{
-    _.merge(params, {
-        userSessionToken: userSessionToken
-    });
-
-    Helper.executeRequest(url, params, callback);
+  var request = null;
+  switch (method.toUpperCase()) {
+    case 'GET': request = axios.get(url, params, config); break;
+    case 'POST': request = axios.post(url, params, config); break;
+    default: callback(null, {code: null, message:"Method inválido"}); return;
   }
+
+  request.then(function (res) {
+      if (res.status === 204) {
+        callback(true, null);
+      } else {
+        callback(res.data, null);
+      }
+    });
+  request.catch(function(error) {
+
+    if ((error.response !== undefined) && (error.response.data !== undefined) && (typeof error.response.data === 'object')) {
+        callback(null, error.response.data);
+      } else {
+        callback(null, {code: "-2000", message:"Falha de comunicação, por favor tente novamente."});
+      }
+  });
 }
 
 // Tratamento para a validação do input de CNPJ/CPF
