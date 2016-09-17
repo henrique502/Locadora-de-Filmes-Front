@@ -2,21 +2,68 @@ import React from 'react';
 import { Button, FormControl, FormGroup, ControlLabel } from 'react-bootstrap';
 import { Link } from 'react-router'
 
+var Helper = require('../configs/Helper.js')
+
 const ImgLogo = require('../../img/logo.svg');
 
 export default class Signin extends React.Component {
-  getInitialState() {
-    return {
-      value: ''
+
+  constructor() {
+    super();
+
+    this.handleChangeEmail = this.handleChangeEmail.bind(this);
+    this.handleChangeSenha = this.handleChangeSenha.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+
+    this.state = {
+      email: '',
+      senha: ''
     };
   }
-  handleSubmit = function(event){
-    event.prevetDefault();
+
+  handleSubmit(e){
+    e.preventDefault();
     console.log('submit');
+    console.log(this.state.email && this.state.senha);
   }
 
-  handleChange(e) {
-    this.setState({ value: e.target.value });
+  getEmailValidationState(){
+    const length = this.state.email.length;
+    let status = null;
+    if (length > 0){
+      if(Helper.emailIsValid(this.state.email)){
+        status = true;
+      } else {
+        status = false;
+      }
+    }
+    if(status === null) return null;
+    if(status === true) return 'success';
+    return 'error';
+  }
+
+  getPasswordValidationState(){
+    const length = this.state.senha.length;
+    let status = null;
+
+    if (length > 0){
+      if (length >= 6 && length <= 12){
+        status = true;
+      } else {
+        status = false;
+      }
+    }
+    if(status === null) return null;
+    if(status === true) return 'success';
+    return 'error';
+  }
+
+  handleChangeEmail(e) {
+    this.setState({email: e.target.value });
+  }
+
+  handleChangeSenha(e) {
+    this.setState({senha: e.target.value });
   }
 
   render(){
@@ -31,14 +78,14 @@ export default class Signin extends React.Component {
             <div className="panel">
               <div className="panel-body">
                 <form onSubmit={this.handleSubmit}>
-                  <FormGroup controlId="formEmail">
+                  <FormGroup controlId="formEmail"  validationState={this.getEmailValidationState()}>
                     <ControlLabel>E-mail</ControlLabel>
-                    <FormControl type="email" value={this.state.value} maxLength="60" autoCapitalize="off" onChange={this.handleChange} />
+                    <FormControl type="email" maxLength="60" autoCapitalize="off" onChange={this.handleChangeEmail} />
                     <FormControl.Feedback />
                   </FormGroup>
-                  <FormGroup controlId="formPassword">
+                  <FormGroup controlId="formPassword"  validationState={this.getPasswordValidationState()}>
                     <ControlLabel>Senha</ControlLabel>
-                    <FormControl type="password" value={this.state.value} maxLength="60" autoCapitalize="off" onChange={this.handleChange} />
+                    <FormControl type="password" maxLength="12" autoCapitalize="off" onChange={this.handleChangeSenha} />
                     <FormControl.Feedback />
                   </FormGroup>
                   <FormGroup>
