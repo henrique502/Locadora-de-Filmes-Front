@@ -11,6 +11,14 @@ export default class FilmeGrid extends React.Component {
 
   }
 
+  componentWillMount(){
+
+  }
+
+  componentDidMount(){
+
+  }
+
   handleChange(e){
   }
 
