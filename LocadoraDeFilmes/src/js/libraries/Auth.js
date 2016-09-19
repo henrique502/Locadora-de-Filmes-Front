@@ -1,60 +1,55 @@
-var Helper = require('../configs/Helper.js')
+import Helper from '../configs/Helper.js';
 
-var Auth = {
-  login(email, password, callback) {
+export default class Auth {
+  static login(email, password, callback) {
     callback = arguments[arguments.length - 1];
 
-    if(localStorage.token){
-      if (callback){ callback(true); }
+    if(localStorage.token && localStorage.userId > 0){
+      if (callback){ callback(true, null); }
       this.onChange(true, null);
       return;
 
     } else {
       var params = {email: email, senha: password};
-      Helper.request('get', '/api/login', params, function(data, error){
-
-        var status = (data.token) ? true : false;
-
-        if(status){
+      Helper.request('post', '/api/login', params, function(data, error){
+        var  status = false;
+        if(error === null){
+          status = true;
           localStorage.token = data.token;
-          localStorage.user = {
-            id: data.id,
-            nome: data.nome
-          }
+          localStorage.userName = data.nome;
+          localStorage.userId = data.id;
         }
 
         Auth.onChange(status, error);
         if (callback){ callback(status, error); }
       });
     }
-  },
+  }
 
-  getId(){
-    return localStorage.user.id;
-  },
+  static getId(){
+    return localStorage.userIid;
+  }
 
-  getUser(){
-    return localStorage.user;
-  },
+  static getUserName(){
+    return localStorage.userName;
+  }
 
-  getToken(){
+  static getToken(){
     return localStorage.token;
-  },
+  }
 
-  isLogged(){
-    return (localStorage.user.id > 0);
-  },
+  static isLogged(){
+    return (localStorage.token && localStorage.userId > 0) ? true : false;
+  }
 
-  required(nextState, replace){
+  static required(nextState, replace){
     if (Auth.isLogged() === false){
       replace({
         pathname: '/signin',
         state: { nextPathname: nextState.location.pathname }
       })
     }
-  },
+  }
 
-  onChange(){}
+  static onChange(){}
 }
-
-module.exports = Auth;

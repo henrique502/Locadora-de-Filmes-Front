@@ -1,5 +1,14 @@
 var gulp = require('gulp');
+var react = require('gulp-react');
 
 gulp.task('default', function() {
-  // place code for your default task here
+  // css
+  gulp.src(['src/assets/js/*.js')
+    .pipe(minify())
+    .pipe(gulp.dest('build/assets/js'));
+
+  //js
+  gulp.src(['src/assets/css/*.css')
+    .pipe(minify())
+    .pipe(gulp.dest('build/assets/css'));
 });

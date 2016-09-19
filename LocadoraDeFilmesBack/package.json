@@ -1,0 +1,16 @@
+{
+  "name": "LocadoraDeFilmesBack",
+  "version": "0.0.1",
+  "author": "Henrique Rieger Schmidt",
+  "contributors": [],
+  "dependencies": {
+    "express": "^4.14.0",
+    "mysql": "^2.5.4",
+    "lodash": "^4.15.0",
+    "body-parser": "^1.15.2",
+    "crypto": "^0.0.3"
+  },
+  "main": "src/main.js",
+  "devDependencies": {},
+  "description": ""
+}
