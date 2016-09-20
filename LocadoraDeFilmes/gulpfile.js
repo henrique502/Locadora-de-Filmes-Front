@@ -1,23 +1,31 @@
-var gulp = require('gulp');
-var less = require('gulp-less');
-var cleanCSS = require('gulp-clean-css');
-var uglify = require('gulp-uglify');
-var imagemin = require('gulp-imagemin');
-var concat = require('gulp-concat');
-var browserify = require('browserify');
 var babel = require('babelify');
-var fs = require('fs')
-var gracefulFs = require('graceful-fs')
-gracefulFs.gracefulify(fs);
-
+var babelify = require("babelify");
+var browserify = require('browserify');
+var cleanCSS = require('gulp-clean-css');
+var concat = require('gulp-concat');
+var gracefulFs = require('graceful-fs');
+var gulp = require('gulp');
+var gutil = require('gulp-util');
+var rename = require('gulp-rename');
+var streamify = require('gulp-streamify');
+var buffer = require('vinyl-buffer');
+var gulpify = require('gulpify')
+var less = require('gulp-less');
+var source = require('vinyl-source-stream');
+var uglify = require('gulp-uglify');
+var watchify = require('watchify');
+var imagemin = require('gulp-imagemin');
 
 
 var srcTasks = [
   'browserify-app',
+  //'imagemin',
   'less',
   'bootstrap',
+  'bootstrap-css',
   'jquery',
-  'copy-bs-fonts'
+  'copy-bs-fonts',
+  //'minify-css'
 ];
 
 //Less Tasks:
@@ -33,7 +41,6 @@ var browserifyTasks = [
 
 //Gulp Package
 gulp.task('go', ['minify-css'], function() {});
-
 
 //Minify Css
 gulp.task('minify-css', ['uglify'], function() {
@@ -58,7 +65,7 @@ gulp.task('imagemin', srcTasks, function() {
 
 //LESS
 gulp.task('less', function(){
-  return gulp.src(['./src/less/main.less','./node_modules/react-datepicker/dist/react-datepicker.css'])
+  return gulp.src(['./src/less/main.less'])
     .pipe(concat('main.less'))
     .pipe(less())
     .pipe(gulp.dest('./release/css/'));
@@ -66,17 +73,31 @@ gulp.task('less', function(){
 
 
 gulp.task('browserify-app', function () {
-  browserify("src/app.jsx")
-  .transform("babelify", {presets: ["react"]})
-  .bundle()
-  .pipe(fs.createWriteStream("release/js/payablesPageList.js"));
+  var bundleStream = browserify("src/app.js").transform("babelify", {
+    presets: ["es2015", "react"]
+  }).bundle();
+
+  bundleStream
+    .pipe(source('app.js'))
+    .pipe(streamify(uglify()))
+    .pipe(gulp.dest('./release/js'));
+    //.pipe(fs.createWriteStream("release/js/app.js"));
 });
 
 //External Libraries
 gulp.task('bootstrap', function(){
     return gulp.src('./node_modules/bootstrap/dist/js/bootstrap.js')
         .pipe(concat('bootstrap.js'))
+        .pipe(buffer())
+        .pipe(uglify())
         .pipe(gulp.dest('./release/js/'));
+});
+
+//External Libraries
+gulp.task('bootstrap-css', function(){
+  return gulp.src('./node_modules/bootstrap/dist/css/bootstrap.css')
+    .pipe(cleanCSS({compatibility: 'ie8'}))
+    .pipe(gulp.dest('./release/css/'));
 });
 
 //font
@@ -89,6 +110,8 @@ gulp.task('copy-bs-fonts', function(){
 gulp.task('jquery', function(){
     return gulp.src('./node_modules/jquery/dist/jquery.js')
         .pipe(concat('jquery.js'))
+        .pipe(buffer())
+        .pipe(uglify())
         .pipe(gulp.dest('./release/js/'));
 });
 
@@ -104,33 +127,3 @@ gulp.task('default', srcTasks, function(){
   gulp.watch('./src/js/*', browserifyTasks);
   gulp.watch('./src/js/*/*', browserifyTasks);
 });
-
-function compile(watch) {
-  var bundler = watchify(browserify('./src/index.js', { debug: true }).transform(babel));
-
-  function rebundle() {
-    bundler.bundle()
-      .on('error', function(err) { console.error(err); this.emit('end'); })
-      .pipe(source('build.js'))
-      .pipe(buffer())
-      .pipe(sourcemaps.init({ loadMaps: true }))
-      .pipe(sourcemaps.write('./'))
-      .pipe(gulp.dest('./build'));
-  }
-
-  if (watch) {
-    bundler.on('update', function() {
-      console.log('-> bundling...');
-      rebundle();
-    });
-  }
-
-  rebundle();
-}
-
-function watch() {
-  return compile(true);
-};
-
-gulp.task('build', function() { return compile(); });
-gulp.task('watch', function() { return watch(); });

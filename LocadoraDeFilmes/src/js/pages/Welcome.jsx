@@ -7,7 +7,7 @@ import Helper from '../configs/Helper.js';
 export default class Welcome extends React.Component {
   constructor(){
     super();
-    //this.makeRequest();
+    this.makeRequest();
   }
 
   makeRequest(){
